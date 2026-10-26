@@ -1,0 +1,19 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!-- Entitlements = special permissions the app is signed with. -->
+<!-- NOT YET ACTIVE: Xcode only uses this file once you add the "Associated Domains" -->
+<!-- capability (Runner target > Signing & Capabilities > + Capability). See docs/IOS_DEEPLINKS.md. -->
+<!-- It needs a paid Apple Developer team to install on a real iPhone; left inactive so device builds keep working. -->
+<!DOCTYPE plist PUBLIC "-//Apple//DTD PLIST 1.0//EN" "http://www.apple.com/DTDs/PropertyList-1.0.dtd">
+<plist version="1.0">
+<dict>
+	<!-- The list of domains whose https links should open this app (Universal Links). -->
+	<key>com.apple.developer.associated-domains</key>
+	<!-- One entry per domain. -->
+	<array>
+		<!-- applinks: = Universal Links. iOS fetches https://example.com/.well-known/apple-app-site-association -->
+		<!-- ?mode=developer = fetch straight from your domain instead of Apple's CDN (no caching; dev builds only). -->
+		<!-- TODO: replace example.com with your domain (and kWebHost in lib/deep_link_parser.dart). -->
+		<string>applinks:example.com?mode=developer</string>
+	</array>
+</dict>
+</plist>

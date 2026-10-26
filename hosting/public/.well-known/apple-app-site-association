@@ -1,0 +1,13 @@
+{
+  "applinks": {
+    "details": [
+      {
+        "appIDs": ["TEAMID.com.example.tdeeplink"],
+        "components": [
+          { "/": "/product/*" },
+          { "/": "/profile/*" }
+        ]
+      }
+    ]
+  }
+}
