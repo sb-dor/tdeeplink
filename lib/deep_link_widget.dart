@@ -77,6 +77,7 @@ class DeepLinkWidgetState extends State<DeepLinkWidget>
       // "/" means "no launch link" (normal start, or iOS, which never uses
       // defaultRouteName for links), so there is nothing to open.
       if (route == Navigator.defaultRouteName) return;
+      //
       _handleLink(route);
     });
   }
