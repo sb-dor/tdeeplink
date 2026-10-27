@@ -1,6 +1,3 @@
-import 'dart:async';
-
-import 'package:app_links/app_links.dart';
 import 'package:flutter/material.dart';
 import 'package:tdeeplink/deep_link_parser.dart';
 import 'package:tdeeplink/main.dart';
@@ -38,27 +35,27 @@ class DeepLinkWidget extends StatefulWidget {
   const DeepLinkWidget({
     super.key, // ignore: unused_element_parameter
     required this.builder,
-    this.linkStream,
+    this.url,
   });
 
   final WidgetBuilder builder;
 
   // Optional link source; null means "use AppLinks".
-  final Stream<Uri>? linkStream;
+  final String? url;
 
   @override
   State<DeepLinkWidget> createState() => DeepLinkWidgetState();
 }
 
 /// State for widget DeepLinkWidget.
-class DeepLinkWidgetState extends State<DeepLinkWidget> {
+// WidgetsBindingObserver = get notified by Flutter about app events, including
+// links pushed by the OS (didPushRouteInformation).
+class DeepLinkWidgetState extends State<DeepLinkWidget>
+    with WidgetsBindingObserver {
   // Every link received this session, newest first, shown on the home screen.
-  final _history = ValueNotifier<List<Uri>>([]);
+  final _history = ValueNotifier<List<String>>([]);
 
-  ValueNotifier<List<Uri>> get history => _history;
-
-  // Our listener on the link stream, cancelled in dispose().
-  StreamSubscription<Uri>? _sub;
+  ValueNotifier<List<String>> get history => _history;
 
   /* #region Lifecycle */
   @override
@@ -66,36 +63,53 @@ class DeepLinkWidgetState extends State<DeepLinkWidget> {
     super.initState();
     // Initial state initialization
 
+    // Start receiving didPushRouteInformation (links while running, and iOS cold start).
+    WidgetsBinding.instance.addObserver(this);
+
+    // Android cold start: the launch link is in defaultRouteName.
     // Wait for the first frame so the Navigator exists before we push to it.
-    // Links that arrive earlier are buffered by app_links, so none are lost.
     WidgetsBinding.instance.addPostFrameCallback((_) {
-      // uriLinkStream gives the link that launched the app (cold start)
-      // AND every link received while it is running (warm start).
-      final stream = widget.linkStream ?? AppLinks().uriLinkStream;
-      // Handle each link as it arrives.
-      _sub = stream.listen(_handleLink);
+      //
+      final route =
+          widget.url ??
+          WidgetsBinding.instance.platformDispatcher.defaultRouteName;
+
+      // "/" means "no launch link" (normal start, or iOS, which never uses
+      // defaultRouteName for links), so there is nothing to open.
+      if (route == Navigator.defaultRouteName) return;
+      _handleLink(route);
     });
   }
 
   @override
   void dispose() {
-    // Permanent removal of a tree stent
-    // Stop listening when the app widget goes away.
-    _sub?.cancel();
-    // Free the notifier.
+    // Stop receiving link notifications.
+    WidgetsBinding.instance.removeObserver(this);
     _history.dispose();
     super.dispose();
   }
   /* #endregion */
 
+  // Called by Flutter for every link the OS sends while the app is running
+  // (Android and iOS), and for the launch link on iOS (after the first frame).
+  @override
+  Future<bool> didPushRouteInformation(
+    RouteInformation routeInformation,
+  ) async {
+    // The full link, e.g. tdeeplink://product/42?ref=email.
+    _handleLink(routeInformation.uri.toString());
+    // true = handled; Flutter stops offering it to other observers.
+    return true;
+  }
+
   // Called for every incoming deep link.
-  void _handleLink(Uri uri) {
+  void _handleLink(String url) {
     // Print to the console so you can see links in `flutter run` / logcat / Xcode.
-    debugPrint('Deep link received: $uri');
+    debugPrint('Deep link received: $url');
     // Add to the on-screen history.
-    _history.value = [uri, ..._history.value];
+    _history.value = [url, ..._history.value];
     // Open the screen this link points to.
-    openRoute(parseDeepLink(uri));
+    openRoute(parseStringDeepLink(url));
   }
 
   // Pushes the screen for a parsed route.
@@ -117,12 +131,10 @@ class DeepLinkWidgetState extends State<DeepLinkWidget> {
         icon: Icons.person,
         route: route,
       ),
-      _ => DetailPage(
-        title: 'Unknown link',
-        icon: Icons.link_off,
-        route: route,
-      ),
+      _ => null,
     };
+
+    if (page == null) return;
     // Push that screen on top.
     Navigator.of(context).push(MaterialPageRoute(builder: (_) => page));
   }

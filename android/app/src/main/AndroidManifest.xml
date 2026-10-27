@@ -22,9 +22,10 @@
               />
 
             <!-- ===================== DEEP LINKS ===================== -->
-            <!-- Turn off Flutter's built-in deep link handling: the app_links plugin handles links instead. -->
-            <!-- Without this, Flutter would also try to push the link path as a route and you'd get double navigation. -->
-            <meta-data android:name="flutter_deeplinking_enabled" android:value="false" />
+            <!-- Turn ON Flutter's built-in deep link handling (no package needed). -->
+            <!-- The launch link becomes PlatformDispatcher.defaultRouteName; later links go to didPushRouteInformation. -->
+            <!-- Set to "false" if you switch to the app_links package, or links get handled twice. -->
+            <meta-data android:name="flutter_deeplinking_enabled" android:value="true" />
 
             <!-- 1) CUSTOM SCHEME: tdeeplink://anything -->
             <!-- Works fully offline; no server or domain needed. -->

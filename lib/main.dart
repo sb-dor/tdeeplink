@@ -29,10 +29,25 @@ class _AppState extends State<App> {
     return MaterialApp(
       title: 'Deep Link Tester',
       theme: ThemeData(colorScheme: .fromSeed(seedColor: Colors.deepPurple)),
-      home: DeepLinkWidget(
-        linkStream: widget.linkStream,
-        builder: (context) => HomePage(),
-      ),
+      //
+      //
+      // home: HomePage(),
+      // builder: (context, child) => DeepLinkWidget(
+      //   linkStream: widget.linkStream,
+      //   builder: (context) => child!,
+      // ),
+
+      //
+      //
+      //
+      // builder: (context, _) => DeepLinkWithAppLinksWidget(
+      //   linkStream: widget.linkStream,
+      //   builder: (context) => HomePage(),
+      // ),
+      //
+      //
+      //
+      home: DeepLinkWidget(builder: (context) => HomePage()),
     );
   }
 }
@@ -66,9 +81,32 @@ class _HomePageState extends State<HomePage> {
             'Links received from the OS',
             style: Theme.of(context).textTheme.titleMedium,
           ),
+
           const SizedBox(height: 8),
+
+          // ValueListenableBuilder<List<Uri>>(
+          //   valueListenable: DeepLinkWithAppLinksScope.of(context).history,
+          //   builder: (context, links, _) => links.isEmpty
+          //       // Nothing yet: tell the user how to send one.
+          //       ? const Text(
+          //           'None yet. Run scripts/test_deeplink.sh (see README.md).',
+          //         )
+          //       // Show each received link.
+          //       : Column(
+          //           children: [
+          //             for (final uri in links)
+          //               ListTile(
+          //                 dense: true,
+          //                 leading: const Icon(Icons.call_received),
+          //                 title: Text('$uri'),
+          //               ),
+          //           ],
+          //         ),
+          // ),
+          const SizedBox(height: 8),
+
           // Rebuild this list whenever a new link arrives.
-          ValueListenableBuilder<List<Uri>>(
+          ValueListenableBuilder<List<String>>(
             valueListenable: DeepLinkScope.of(context).history,
             builder: (context, links, _) => links.isEmpty
                 // Nothing yet: tell the user how to send one.
@@ -82,7 +120,7 @@ class _HomePageState extends State<HomePage> {
                         ListTile(
                           dense: true,
                           leading: const Icon(Icons.call_received),
-                          title: Text('$uri'),
+                          title: Text(uri),
                         ),
                     ],
                   ),

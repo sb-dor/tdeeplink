@@ -69,3 +69,16 @@ DeepLinkRoute parseDeepLink(Uri uri) {
   // Ours, but a path we don't know.
   return DeepLinkRoute(DeepLinkTarget.unknown, query: uri.queryParameters, uri: uri);
 }
+
+
+// Converts a String link into a DeepLinkRoute.
+DeepLinkRoute parseStringDeepLink(String url) {
+  // tryParse returns null instead of throwing on malformed text (e.g. "http://[bad").
+  final uri = Uri.tryParse(url.trim());
+  // Not a valid link at all: show it on the "unknown link" screen, keeping the raw text.
+  if (uri == null) {
+    return DeepLinkRoute(DeepLinkTarget.unknown, uri: Uri(path: url));
+  }
+  // Valid Uri: reuse the same rules as parseDeepLink, so both always agree.
+  return parseDeepLink(uri);
+}
