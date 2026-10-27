@@ -4,17 +4,30 @@
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width, initial-scale=1">
   <title>tdeeplink test links</title>
-  <style>body{font-family:system-ui;padding:16px;line-height:2}a{display:block}</style>
+  <style>
+    body { font-family: system-ui; padding: 16px; line-height: 1.4; }
+    a { display: block; padding: 14px; margin: 10px 0; border: 1px solid #888; border-radius: 10px; text-decoration: none; }
+    small { color: #666; }
+  </style>
 </head>
 <body>
   <h1>tdeeplink test links</h1>
   <p>Open this page on the phone and tap a link.</p>
+
   <h2>Custom scheme</h2>
+  <!-- Plain custom scheme link: the browser hands tdeeplink:// to Android/iOS. -->
   <a href="tdeeplink://product/42?ref=web">tdeeplink://product/42?ref=web</a>
   <a href="tdeeplink://profile/john">tdeeplink://profile/john</a>
+
+  <h2>Android: Chrome intent link</h2>
+  <!-- Chrome-only syntax: opens our app by package; if it isn't installed, Chrome stays on the page. -->
+  <a href="intent://product/42?ref=intent#Intent;scheme=tdeeplink;package=com.example.tdeeplink;end">intent://product/42 (Chrome)</a>
+  <small>Most reliable in Chrome on Android.</small>
+
   <h2>https (App Links / Universal Links)</h2>
-  <p>Universal Links only open the app when tapped from a page on a <em>different</em> domain.</p>
-  <a href="/product/7?ref=web">/product/7?ref=web</a>
-  <a href="/profile/john">/profile/john</a>
+  <!-- Absolute https links to our domain: they open the app only once the domain is verified (or allowed via adb). -->
+  <a href="https://example.com/product/7?ref=applink">https://example.com/product/7</a>
+  <a href="https://example.com/profile/john">https://example.com/profile/john</a>
+  <small>Universal Links only open the app when tapped from a page on a <em>different</em> domain.</small>
 </body>
 </html>
